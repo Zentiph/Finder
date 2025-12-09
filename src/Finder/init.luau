@@ -6,7 +6,8 @@
 ]=]
 local Finder = {}
 
-Finder.Search = require(script.Search)
+local Search = require(script.Search)
+Finder.Search = Search :: typeof(Search)
 
 local function resolvePath(root: Instance, path: string, useWait: boolean, timeout: number?): Instance?
 	local current = root
