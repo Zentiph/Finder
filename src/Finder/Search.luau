@@ -1,5 +1,12 @@
 local Search = {}
 
+--[=[
+Finds the first direct child of `root` that has the given tag.
+@param root Instance Root instance whose children are searched.
+@param tag string Tag to look for.
+@return Instance? Child with the tag, or nil if none are found.
+@within Search
+]=]
 function Search.FindFirstChildWithTag(root: Instance, tag: string): Instance?
 	local CollectionService = game:GetService("CollectionService")
 
@@ -12,6 +19,13 @@ function Search.FindFirstChildWithTag(root: Instance, tag: string): Instance?
 	return nil
 end
 
+--[=[
+Walks up the ancestry of `root` and returns the first ancestor with the tag.
+@param root Instance Instance whose ancestors are inspected.
+@param tag string Tag to look for.
+@return Instance? Ancestor with the tag, or nil if none are found.
+@within Search
+]=]
 function Search.FindFirstAncestorWithTag(root: Instance, tag: string): Instance?
 	local CollectionService = game:GetService("CollectionService")
 
@@ -26,6 +40,13 @@ function Search.FindFirstAncestorWithTag(root: Instance, tag: string): Instance?
 	return nil
 end
 
+--[=[
+Searches all descendants of `root` for the first instance with the tag.
+@param root Instance Root instance whose descendants are searched.
+@param tag string Tag to look for.
+@return Instance? Descendant with the tag, or nil if none are found.
+@within Search
+]=]
 function Search.FindFirstDescendantWithTag(root: Instance, tag: string): Instance?
 	local CollectionService = game:GetService("CollectionService")
 
@@ -38,6 +59,15 @@ function Search.FindFirstDescendantWithTag(root: Instance, tag: string): Instanc
 	return nil
 end
 
+--[=[
+Yields until a child of `root` with the tag appears or the optional timeout elapses.
+Prints an infinite yield warning when no timeout is provided.
+@param root Instance Instance whose children are watched.
+@param tag string Tag to wait for.
+@param timeout number? Maximum seconds to wait; defaults to infinite.
+@return Instance? Child with the tag, or nil if the timeout is reached first.
+@within Search
+]=]
 function Search.WaitForChildWithTag(root: Instance, tag: string, timeout: number?): Instance?
 	local CollectionService = game:GetService("CollectionService")
 	local timeoutNumber = timeout or math.huge
