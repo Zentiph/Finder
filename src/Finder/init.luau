@@ -1,3 +1,5 @@
+--!strict
+
 --- Finder resolves Instances by dot-separated paths with optional caching and logging.
 --[=[
 	@class Finder
@@ -5,7 +7,7 @@
 ]=]
 local Finder = {}
 
-local cache = {}
+Finder.Search = require(script.Search)
 
 export type LogLevel = "print" | "warn" | "error" | "none"
 
@@ -23,13 +25,6 @@ Finder.LogLevel = {
 	Error = "error",
 	None = "none",
 }
-
---- Toggle caching of successful lookups.
---[=[
-	@within Finder
-	@field EnableCaching boolean
-]=]
-Finder.EnableCaching = false
 
 --- Default log level used when none is provided to lookup methods.
 --[=[
@@ -55,13 +50,17 @@ local function resolvePath(root: Instance, path: string, level: string, useWait:
 		local new
 
 		if useWait then
-			new = current:WaitForChild(segment, timeout)
+			if timeout then
+				new = current:WaitForChild(segment, timeout)
+			else
+				new = current:WaitForChild(segment)
+			end
 		else
 			new = current:FindFirstChild(segment)
 		end
 
 		if not new then
-			log(`[Finder:Find()]: Could not find "{segment}" in path "{path}" from root {root:GetFullName()}`, level)
+			log(`[Finder]: Could not find "{segment}" in path "{path}" from root {root:GetFullName()}`, level)
 			return nil
 		end
 
@@ -76,23 +75,12 @@ end
 	@within Finder
 	@param root Instance The Instance to start the search from.
 	@param path string Dot-separated path, e.g. `"Workspace.Map.Spawn"`.
-	@param logLevel string? Overrides `Finder.DefaultLogLevel` for this lookup.
+	@param logLevel LogLevel? Overrides `Finder.DefaultLogLevel` for this lookup.
 	@return Instance? The found Instance or `nil` if any segment is missing.
 ]=]
-function Finder:Find(root: Instance, path: string, logLevel: string?): Instance?
-	local cacheKey = root:GetFullName() .. "." .. path
+function Finder.Find(root: Instance, path: string, logLevel: LogLevel?): Instance?
 	local level = logLevel or Finder.DefaultLogLevel
-
-	if Finder.EnableCaching and cache[cacheKey] then
-		return cache[cacheKey]
-	end
-
-	local result = resolvePath(root, path, level, false)
-	if result and Finder.EnableCaching then
-		cache[cacheKey] = result
-	end
-
-	return result
+	return resolvePath(root, path, level, false)
 end
 
 --- Finds an Instance by path, waiting for each segment with `WaitForChild`.
@@ -101,23 +89,12 @@ end
 	@param root Instance The Instance to start the search from.
 	@param path string Dot-separated path, e.g. `"ReplicatedStorage.Config.Flag"`.
 	@param timeout number? Timeout in seconds for each `WaitForChild` call.
-	@param logLevel string? Overrides `Finder.DefaultLogLevel` for this lookup.
+	@param logLevel LogLevel? Overrides `Finder.DefaultLogLevel` for this lookup.
 	@return Instance? The found Instance or `nil` if any segment times out or is missing.
 ]=]
-function Finder:FindWithWait(root: Instance, path: string, timeout: number?, logLevel: string?): Instance?
-	local cacheKey = root:GetFullName() .. "." .. path
+function Finder.FindWithWait(root: Instance, path: string, timeout: number?, logLevel: LogLevel?): Instance?
 	local level = logLevel or Finder.DefaultLogLevel
-
-	if Finder.EnableCaching and cache[cacheKey] then
-		return cache[cacheKey]
-	end
-
-	local result = resolvePath(root, path, level, true, timeout)
-	if result and Finder.EnableCaching then
-		cache[cacheKey] = result
-	end
-
-	return result
+	return resolvePath(root, path, level, true, timeout)
 end
 
 return Finder
