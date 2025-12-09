@@ -6,6 +6,8 @@
 ]=]
 local Search = {}
 
+local CollectionService = game:GetService("CollectionService")
+
 --[=[
 Finds the first direct child of `root` that has the given tag.
 @param root Instance Root instance whose children are searched.
@@ -14,8 +16,6 @@ Finds the first direct child of `root` that has the given tag.
 @within Search
 ]=]
 function Search.FindFirstChildWithTag(root: Instance, tag: string): Instance?
-	local CollectionService = game:GetService("CollectionService")
-
 	for _, child in root:GetChildren() do
 		if CollectionService:HasTag(child, tag) then
 			return child
@@ -33,8 +33,6 @@ Walks up the ancestry of `root` and returns the first ancestor with the tag.
 @within Search
 ]=]
 function Search.FindFirstAncestorWithTag(root: Instance, tag: string): Instance?
-	local CollectionService = game:GetService("CollectionService")
-
 	local current = root.Parent
 	while current do
 		if CollectionService:HasTag(current, tag) then
@@ -54,8 +52,6 @@ Searches all descendants of `root` for the first instance with the tag.
 @within Search
 ]=]
 function Search.FindFirstDescendantWithTag(root: Instance, tag: string): Instance?
-	local CollectionService = game:GetService("CollectionService")
-
 	for _, descendant in root:GetDescendants() do
 		if CollectionService:HasTag(descendant, tag) then
 			return descendant
@@ -75,7 +71,6 @@ Prints an infinite yield warning when no timeout is provided.
 @within Search
 ]=]
 function Search.WaitForChildWithTag(root: Instance, tag: string, timeout: number?): Instance?
-	local CollectionService = game:GetService("CollectionService")
 	local timeoutNumber = timeout or math.huge
 	local warningPrinted = false
 
