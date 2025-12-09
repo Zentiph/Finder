@@ -90,6 +90,11 @@ function Search.WaitForChildWithTag(root: Instance, tag: string, timeout: number
 	end)
 
 	while not result and os.clock() - start < timeoutNumber do
+		-- check for destruction
+		if not root.Parent then
+			break
+		end
+
 		if not timeout and not warningPrinted then
 			warn(
 				`[Finder.Search]: Infinite yield possible on 'Finder.Search.WaitForChildWithTag({root.Name}, "{tag}")'`
