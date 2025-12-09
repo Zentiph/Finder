@@ -1,3 +1,9 @@
+--!strict
+
+--- Search for instances under certain conditions.
+--[=[
+	@class Search
+]=]
 local Search = {}
 
 --[=[

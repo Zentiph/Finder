@@ -3,7 +3,6 @@
 --- Finder resolves Instances by dot-separated paths with optional caching and logging.
 --[=[
 	@class Finder
-    @author zen :3
 ]=]
 local Finder = {}
 
