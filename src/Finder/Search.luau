@@ -112,4 +112,42 @@ function Search.WaitForChildWithTag(root: Instance, tag: string, timeout: number
 	return result
 end
 
+--[=[
+Get all the children of `root` that have the given tag.
+@param root Instance Root instance whose children are searched.
+@param tag string Tag to look for.
+@return { Instance } Children with the tag.
+@within Search
+]=]
+function Search.GetChildrenWithTag(root: Instance, tag: string): { Instance }
+	local results = {}
+
+	for _, child in root:GetChildren() do
+		if CollectionService:HasTag(child, tag) then
+			table.insert(results, child)
+		end
+	end
+
+	return results
+end
+
+--[=[
+Get all the descendants of `root` that have the given tag.
+@param root Instance Root instance whose descendants are searched.
+@param tag string Tag to look for.
+@return { Instance } Descendants with the tag.
+@within Search
+]=]
+function Search.GetDescendantsWithTag(root: Instance, tag: string): { Instance }
+	local results = {}
+
+	for _, descendant in root:GetDescendants() do
+		if CollectionService:HasTag(descendant, tag) then
+			table.insert(results, descendant)
+		end
+	end
+
+	return results
+end
+
 return Search
