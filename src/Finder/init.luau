@@ -6,13 +6,16 @@
 ]=]
 local Finder = {}
 
+local Path = require(script.Path)
+Finder.Path = Path :: typeof(Path)
+
 local Search = require(script.Search)
 Finder.Search = Search :: typeof(Search)
 
 local function resolvePath(root: Instance, path: string, useWait: boolean, timeout: number?): Instance?
 	local current = root
 
-	for segment in string.gmatch(path, "[^%.]+") do
+	for _, segment in Path.split(path) do
 		local new
 
 		if useWait then
