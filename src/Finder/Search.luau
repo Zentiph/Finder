@@ -189,6 +189,40 @@ function Search.GetDescendantsMatching(root: Instance, predicate: (Instance) -> 
 	return results
 end
 
+-------------------
+-- randomness!!! --
+-------------------
+
+local function getRandomItem<T>(tab: { T }): T?
+	local count = #tab
+	if count == 0 then
+		return nil
+	end
+	return tab[math.random(1, count)]
+end
+
+--[=[
+Returns a random child of `root` matching the given condition.
+@param root Instance Root instance whose children are searched.
+@param predicate (Instance) -> boolean The predicate to apply to the searched instances.
+@return Instance? The randomly chosen child matching the condition, or nil if there are none.
+@within Search
+]=]
+function Search.GetRandomChildMatching(root: Instance, predicate: (Instance) -> boolean): Instance?
+	return getRandomItem(Search.GetChildrenMatching(root, predicate))
+end
+
+--[=[
+Returns a random descendant of `root` matching the given condition.
+@param root Instance Root instance whose descendants are searched.
+@param predicate (Instance) -> boolean The predicate to apply to the searched instances.
+@return Instance? The randomly chosen descendant matching the condition, or nil if there are none.
+@within Search
+]=]
+function Search.GetRandomDescendantMatching(root: Instance, predicate: (Instance) -> boolean): Instance?
+	return getRandomItem(Search.GetDescendantsMatching(root, predicate))
+end
+
 ----------------------------------------------------
 -- descendant versions of FindFirstChild_ methods --
 ----------------------------------------------------
