@@ -6,6 +6,10 @@
 ]=]
 local Search = {}
 
+----------------------------------
+-- matching (predicate) methods --
+----------------------------------
+
 local function waitForMatching(
 	root: Instance,
 	initial: () -> Instance?,
@@ -183,6 +187,36 @@ function Search.GetDescendantsMatching(root: Instance, predicate: (Instance) -> 
 	end
 
 	return results
+end
+
+----------------------------------------------------
+-- descendant versions of FindFirstChild_ methods --
+----------------------------------------------------
+
+--[=[
+Find the first descendant which `:IsA(className)`.
+@param root Instance Root instance whose descendants are searched.
+@param className string The class type to find.
+@return Instance? The first descendant of the class type or nil if there are none.
+@within Search
+]=]
+function Search.FindFirstDescendantWhichIsA(root: Instance, className: string): Instance?
+	return Search.FindFirstDescendantMatching(root, function(instance: Instance): boolean
+		return instance:IsA(className)
+	end)
+end
+
+--[=[
+Find the first descendant whose class name matches the one provided.
+@param root Instance Root instance whose descendants are searched.
+@param className string The class name to find.
+@return Instance? The first descendant with the class name or nil if there are none.
+@within Search
+]=]
+function Search.FindFirstDescendantOfClass(root: Instance, className: string): Instance?
+	return Search.FindFirstDescendantMatching(root, function(instance: Instance): boolean
+		return instance.ClassName == className
+	end)
 end
 
 return Search
