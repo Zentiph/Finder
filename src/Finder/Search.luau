@@ -14,17 +14,20 @@ local function instanceExists(instance: Instance): boolean
 	return instance.Parent ~= nil or instance == game
 end
 
-local function waitForMatching(
+local function getRandomItem<T>(tab: { T }): T?
+	local count = #tab
+	if count == 0 then
+		return nil
+	end
+	return tab[math.random(1, count)]
+end
+
+local function waitForMatch(
 	root: Instance,
 	initial: () -> Instance?,
-	connectSignal: (
-		root: Instance,
-		predicate: (Instance) -> boolean,
-		setResult: (Instance) -> ()
-	) -> RBXScriptConnection,
-	predicate: (Instance) -> boolean,
+	subscribe: (setResult: (Instance) -> ()) -> RBXScriptConnection,
 	timeout: number?,
-	description: string
+	warningLabel: string
 ): Instance?
 	local timeoutNumber = timeout or math.huge
 	local warningPrinted = false
@@ -36,8 +39,8 @@ local function waitForMatching(
 	end
 
 	local result: Instance? = nil
-	local connection = connectSignal(root, predicate, function(inst: Instance)
-		result = inst
+	local connection = subscribe(function(instance: Instance)
+		result = instance
 	end)
 
 	while not result and os.clock() - start < timeoutNumber do
@@ -46,7 +49,7 @@ local function waitForMatching(
 		end
 
 		if not timeout and not warningPrinted then
-			warn(`[Finder.Search]: Infinite yield possible on '{description}'`)
+			warn(`[Finder.Search]: Infinite yield possible on '{warningLabel}'`)
 			warningPrinted = true
 		end
 
@@ -135,15 +138,15 @@ Prints an infinite yield warning when no timeout is provided.
 @within Search
 ]=]
 function Search.WaitForChildMatching(root: Instance, predicate: (Instance) -> boolean, timeout: number?): Instance?
-	return waitForMatching(root, function()
+	return waitForMatch(root, function()
 		return Search.FindFirstChildMatching(root, predicate)
-	end, function(r, pred, setResult)
-		return r.ChildAdded:Connect(function(child)
-			if pred(child) then
+	end, function(setResult)
+		return root.ChildAdded:Connect(function(child)
+			if predicate(child) then
 				setResult(child)
 			end
 		end)
-	end, predicate, timeout, `Finder.Search.WaitForChildMatching({root.Name}, <predicate>)`)
+	end, timeout, `Finder.Search.WaitForChildMatching({root:GetFullName()}, <predicate>)`)
 end
 
 --[=[
@@ -156,15 +159,15 @@ Prints an infinite yield warning when no timeout is provided.
 @within Search
 ]=]
 function Search.WaitForDescendantMatching(root: Instance, predicate: (Instance) -> boolean, timeout: number?): Instance?
-	return waitForMatching(root, function()
+	return waitForMatch(root, function()
 		return Search.FindFirstDescendantMatching(root, predicate)
-	end, function(r, pred, setResult)
-		return r.DescendantAdded:Connect(function(descendant)
-			if pred(descendant) then
+	end, function(setResult)
+		return root.DescendantAdded:Connect(function(descendant)
+			if predicate(descendant) then
 				setResult(descendant)
 			end
 		end)
-	end, predicate, timeout, `Finder.Search.WaitForDescendantMatching({root.Name}, <predicate>)`)
+	end, timeout, `Finder.Search.WaitForDescendantMatching({root.Name}, <predicate>)`)
 end
 
 --[=[
@@ -188,6 +191,58 @@ function Search.GetChildrenMatching(root: Instance, predicate: (Instance) -> boo
 	end
 
 	return results
+end
+
+--[=[
+Get an iterator over the children of `root` matching the given condition.
+@param root Instance Root instance whose children are searched.
+@param predicate (Instance) -> boolean The predicate to apply to the searched instances.
+@return () -> Instance? An iterator over the matching children.
+@within Search
+]=]
+function Search.IterChildrenMatching(root: Instance, predicate: (Instance) -> boolean): () -> Instance?
+	local children = root:GetChildren()
+	local index = 0
+
+	return function()
+		while true do
+			index += 1
+			local instance = children[index]
+
+			if not instance then
+				return nil
+			end
+			if predicate(instance) then
+				return instance
+			end
+		end
+	end
+end
+
+--[=[
+Get an iterator over the descendants of `root` matching the given condition.
+@param root Instance Root instance whose descendants are searched.
+@param predicate (Instance) -> boolean The predicate to apply to the searched instances.
+@return () -> Instance? An iterator over the matching descendants.
+@within Search
+]=]
+function Search.IterDescendantsMatching(root: Instance, predicate: (Instance) -> boolean): () -> Instance?
+	local descendants = root:GetDescendants()
+	local index = 0
+
+	return function()
+		while true do
+			index += 1
+			local instance = descendants[index]
+
+			if not instance then
+				return nil
+			end
+			if predicate(instance) then
+				return instance
+			end
+		end
+	end
 end
 
 --[=[
@@ -216,14 +271,6 @@ end
 -------------------
 -- randomness!!! --
 -------------------
-
-local function getRandomItem<T>(tab: { T }): T?
-	local count = #tab
-	if count == 0 then
-		return nil
-	end
-	return tab[math.random(1, count)]
-end
 
 --[=[
 Returns a random child of `root` matching the given condition.
