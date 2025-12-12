@@ -12,7 +12,7 @@ Perform an operation on every child of an instance.
 @param callback (Instance) -> () The operation to apply to the searched Instances.
 @within Tree
 ]=]
-function Tree.ForEachChild(root: Instance, callback: (Instance) -> ())
+function Tree.ForEachChild(root: Instance, callback: (Instance) -> ()): ()
 	for _, child in root:GetChildren() do
 		callback(child)
 	end
@@ -24,7 +24,7 @@ Perform an operation on every descendant of an instance.
 @param callback (Instance) -> () The operation to apply to the searched Instances.
 @within Tree
 ]=]
-function Tree.ForEachDescendant(root: Instance, callback: (Instance) -> ())
+function Tree.ForEachDescendant(root: Instance, callback: (Instance) -> ()): ()
 	for _, descendant in root:GetDescendants() do
 		callback(descendant)
 	end
@@ -37,7 +37,7 @@ Clone all the children of an instance and place them within another.
 @param override boolean? Whether to override the old children of `target`. Defaults to false.
 @within Tree
 ]=]
-function Tree.CloneChildren(source: Instance, target: Instance, override: boolean?)
+function Tree.CloneChildren(source: Instance, target: Instance, override: boolean?): ()
 	if override then
 		target:ClearAllChildren()
 	end

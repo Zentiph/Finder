@@ -118,7 +118,7 @@ Prints an infinite yield warning when no timeout is provided.
 @return Instance? Child matching the condition, or nil if the timeout is reached first.
 @within Search
 ]=]
-function Search.WaitForChildMatching(root: Instance, predicate: (Instance) -> boolean, timeout: number?)
+function Search.WaitForChildMatching(root: Instance, predicate: (Instance) -> boolean, timeout: number?): Instance?
 	return waitForMatching(root, function()
 		return Search.FindFirstChildMatching(root, predicate)
 	end, function(r, pred, setResult)
