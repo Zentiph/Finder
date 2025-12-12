@@ -15,7 +15,7 @@ Finder.Search = Search :: typeof(Search)
 local function resolvePath(root: Instance, path: string, useWait: boolean, timeout: number?): Instance?
 	local current = root
 
-	for _, segment in Path.split(path) do
+	for _, segment in Path.Split(path) do
 		local new
 
 		if useWait then
