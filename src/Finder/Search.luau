@@ -10,6 +10,10 @@ local Search = {}
 -- matching (predicate) methods --
 ----------------------------------
 
+local function instanceExists(instance: Instance): boolean
+	return instance.Parent ~= nil or instance == game
+end
+
 local function waitForMatching(
 	root: Instance,
 	initial: () -> Instance?,
@@ -64,6 +68,10 @@ Finds the first direct child of `root` that matches the given condition.
 @within Search
 ]=]
 function Search.FindFirstChildMatching(root: Instance, predicate: (Instance) -> boolean): Instance?
+	if not instanceExists(root) then
+		return nil
+	end
+
 	for _, child in root:GetChildren() do
 		if predicate(child) then
 			return child
@@ -81,6 +89,10 @@ Walks up the ancestry of `root` and returns the first ancestor that matches the 
 @within Search
 ]=]
 function Search.FindFirstAncestorMatching(root: Instance, predicate: (Instance) -> boolean): Instance?
+	if not instanceExists(root) then
+		return nil
+	end
+
 	local ancestor = root.Parent
 	while ancestor do
 		if predicate(ancestor) then
@@ -100,6 +112,10 @@ Searches all descendants of `root` for the first instance matching the given con
 @within Search
 ]=]
 function Search.FindFirstDescendantMatching(root: Instance, predicate: (Instance) -> boolean): Instance?
+	if not instanceExists(root) then
+		return nil
+	end
+
 	for _, descendant in root:GetDescendants() do
 		if predicate(descendant) then
 			return descendant
@@ -127,7 +143,7 @@ function Search.WaitForChildMatching(root: Instance, predicate: (Instance) -> bo
 				setResult(child)
 			end
 		end)
-	end, predicate, timeout, `Finder.Search.WaitForChildMatching({root.Name})`)
+	end, predicate, timeout, `Finder.Search.WaitForChildMatching({root.Name}, <predicate>)`)
 end
 
 --[=[
@@ -148,7 +164,7 @@ function Search.WaitForDescendantMatching(root: Instance, predicate: (Instance) 
 				setResult(descendant)
 			end
 		end)
-	end, predicate, timeout, `Finder.Search.WaitForDescendantMatching({root.Name})`)
+	end, predicate, timeout, `Finder.Search.WaitForDescendantMatching({root.Name}, <predicate>)`)
 end
 
 --[=[
@@ -160,6 +176,10 @@ Get all the children of `root` that match the given condition.
 ]=]
 function Search.GetChildrenMatching(root: Instance, predicate: (Instance) -> boolean): { Instance }
 	local results = {}
+
+	if not instanceExists(root) then
+		return results
+	end
 
 	for _, child in root:GetChildren() do
 		if predicate(child) then
@@ -179,6 +199,10 @@ Get all the descendants of `root` that match the given condition.
 ]=]
 function Search.GetDescendantsMatching(root: Instance, predicate: (Instance) -> boolean): { Instance }
 	local results = {}
+
+	if not instanceExists(root) then
+		return results
+	end
 
 	for _, descendant in root:GetDescendants() do
 		if predicate(descendant) then
